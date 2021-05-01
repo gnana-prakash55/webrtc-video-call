@@ -14,9 +14,12 @@ const ContextProvider = ({children}) => {
     const [callAccepted,setCallAccepted] = useState(false);
     const [callEnded,setCallEnded] = useState(false);
     const [name,setName] = useState('');
+    const [shareStream,setShareStream] = useState(null);
+    const [screenShareEnded, setScreenShareEnded] = useState(false);
 
     const myVideo = useRef();
     const userVideo = useRef();
+    const screenShareVideo = useRef();
     const connectionRef = useRef();
 
     console.log(stream)
@@ -77,6 +80,26 @@ const ContextProvider = ({children}) => {
 
     }
 
+    const screenShare = () => {
+        navigator.mediaDevices.getDisplayMedia({cursor:true})
+        .then(screenStream=>{
+            setScreenShareEnded(false)
+            setShareStream(screenStream)
+            connectionRef.current.replaceTrack(stream.getVideoTracks()[0],screenStream.getVideoTracks()[0],stream)
+            myVideo.current.srcObject=screenStream
+            screenStream.getTracks()[0].onended = () =>{
+            setScreenShareEnded(true)
+            connectionRef.current.replaceTrack(screenStream.getVideoTracks()[0],stream.getVideoTracks()[0],stream)
+            myVideo.current.srcObject=stream
+          }
+        })
+    }
+
+    const stopSharing = () => {
+        connectionRef.current.replaceTrack(shareStream.getVideoTracks()[0],stream.getVideoTracks()[0],stream)
+        myVideo.current.srcObject=stream
+    }
+
     const leaveCall = () => {
         setCallEnded(true);
 
@@ -84,6 +107,7 @@ const ContextProvider = ({children}) => {
 
         window.location.reload();
     }
+
 
     return(
         <SocketContext.Provider value={{
@@ -98,7 +122,12 @@ const ContextProvider = ({children}) => {
             callUser,
             me,
             leaveCall,
-            answerCall
+            answerCall,
+            shareStream,
+            screenShare,
+            screenShareVideo,
+            stopSharing,
+            screenShareEnded
         }}>
 
             {children}

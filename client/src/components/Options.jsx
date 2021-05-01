@@ -53,6 +53,10 @@ const Options = ({ children }) => {
     callEnded,
     leaveCall,
     callUser,
+    screenShare,
+    shareStream,
+    stopSharing,
+    screenShareEnded
   } = useContext(SocketContext);
   const [idToCall, setIdToCall] = useState("");
   const classes = useStyles();
@@ -93,6 +97,33 @@ const Options = ({ children }) => {
                 onChange={(e) => setIdToCall(e.target.value)}
                 fullWidth
               />
+                { callAccepted && !callEnded && !shareStream && (<Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  onClick={screenShare}
+                  className={classes.margin}
+                >
+                  Share Screen
+                </Button>)}
+                {screenShareEnded && (<Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  onClick={screenShare}
+                  className={classes.margin}
+                >
+                  Share Screen
+                </Button>)}
+                {/* { shareStream && (<Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  onClick={stopSharing}
+                  className={classes.margin}
+                >
+                  Stop Sharing
+                </Button>)} */}
               {callAccepted && !callEnded ? (
                 <Button
                   variant="contained"

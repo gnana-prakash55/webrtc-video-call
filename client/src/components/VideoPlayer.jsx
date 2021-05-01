@@ -33,6 +33,8 @@ const VideoPlayer = () => {
     callEnded,
     stream,
     call,
+    shareStream,
+    screenShareVideo,
   } = useContext(SocketContext);
   const classes = useStyles();
 
