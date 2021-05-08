@@ -16,13 +16,14 @@ const ContextProvider = ({children}) => {
     const [name,setName] = useState('');
     const [shareStream,setShareStream] = useState(null);
     const [screenShareEnded, setScreenShareEnded] = useState(false);
+    const [message,setMessage] = useState('')
 
     const myVideo = useRef();
     const userVideo = useRef();
     const screenShareVideo = useRef();
     const connectionRef = useRef();
 
-    console.log(stream)
+    //console.log(stream)
 
     useEffect(() => {
         navigator.mediaDevices.getUserMedia({ video: true, audio: true})
@@ -52,6 +53,15 @@ const ContextProvider = ({children}) => {
             userVideo.current.srcObject = currentStream;
         })
 
+        peer.on('connect',()=> {
+            peer.send(JSON.stringify({name:'admin',msg:'Wecome to video Chat'}))
+        })
+
+        peer.on('data',(data) => {
+            let payload = JSON.parse(data)
+            console.log(payload.name + ':' + payload.msg)
+        })
+
         peer.signal(call.signal)
 
         connectionRef.current = peer;
@@ -67,6 +77,15 @@ const ContextProvider = ({children}) => {
 
         peer.on('stream',(currentStream) => {
             userVideo.current.srcObject = currentStream;
+        })
+
+        peer.on('connect',()=> {
+            peer.send(JSON.stringify({name:'admin',msg:'Welcome to video Chat'}))
+        })
+
+        peer.on('data',(data) => {
+            let payload = JSON.parse(data)
+            console.log(payload.name + ':' + payload.msg)
         })
 
         socket.on('callaccepted',(signal) => {
@@ -108,6 +127,13 @@ const ContextProvider = ({children}) => {
         window.location.reload();
     }
 
+    const sendMessage = () => {
+        console.log(message)
+        connectionRef.current.send(JSON.stringify({name:name,msg:message}))
+        setMessage('')
+    }
+
+
 
     return(
         <SocketContext.Provider value={{
@@ -127,7 +153,10 @@ const ContextProvider = ({children}) => {
             screenShare,
             screenShareVideo,
             stopSharing,
-            screenShareEnded
+            screenShareEnded,
+            message,
+            setMessage,
+            sendMessage
         }}>
 
             {children}
